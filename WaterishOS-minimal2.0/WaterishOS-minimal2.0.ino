@@ -36,8 +36,10 @@ void collectdata(){
     for(int sid=8;sid<13;sid++)sensorB[sid-8].tick(1000);
 }
 void updatemqtt(){
-    for()
-}
+    for(int counter;counter<=6;counter++)mqtt.publish("/waterishos/node"+nodename+"/flowrateA/"+counter,String(sensorA[counter].getCurrentFlowrate()));
+    for(int counter;counter<=6;counter++)mqtt.publish("/waterishos/node"+nodename+"/volumeA/"+counter,String(sensorA[counter].getTotalVolume()));
+    for(int counter;counter<=6;counter++)mqtt.publish("/waterishos/node"+nodename+"/flowrateB/"+counter,String(sensorB[counter].getCurrentFlowrate()));
+    for(int counter;counter<=6;counter++)mqtt.publish("/waterishos/node"+nodename+"/volumeB/"+counter,String(sensorB[counter].getTotalVolume()));}
 void setup(){
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
@@ -47,7 +49,7 @@ void setup(){
     //wait for it ... (Wait for Wifi Connection
     connectionattempt++;
     delay(500);
-    if(conbnectionattempt>=20){
+    if(connnectionattempt>=20){
       online=false;
       break();
     }
