@@ -36,6 +36,7 @@ byte InteruptPinB=3;
 byte arduinoInterrupt=1;
 long tslr=0;
 WiFiClient espClient;
+String nodename="devkit";
 PubSubClient client(MQTT_SERVER, 1883, espClient);
 PubSubClientTools mqtt(client);
 ThreadController threadControl = ThreadController();
