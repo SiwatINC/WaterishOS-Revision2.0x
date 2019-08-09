@@ -1,3 +1,8 @@
+#include <PubSubClient.h>
+
+#include <MqttWildcard.h>
+#include <PubSubClientTools.h>
+
 #include <BearSSLHelpers.h>
 #include <CertStoreBearSSL.h>
 #include <ESP8266WiFi.h>
