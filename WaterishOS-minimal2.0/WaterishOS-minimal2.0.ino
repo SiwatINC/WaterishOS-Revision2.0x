@@ -19,7 +19,8 @@ void setup(){
   pinMode(1, FUNCTION_3); 
   pinMode(3, FUNCTION_3); 
 
-  pinMode(arduinoIntPin,INPUT);
+  pinMode(1,INPUT);
+  pinMode(3,INPUT);
   mcp.begin();      // use default address 0
   mcp.setupInterrupts(true,false,LOW);
   // configuration for a button on port A
@@ -48,14 +49,8 @@ void handleInterrupt(){
   
   // We will flash the led 1 or 2 times depending on the PIN that triggered the Interrupt
   // 3 and 4 flases are supposed to be impossible conditions... just for debugging.
-  for(int sid=0;sid<=7)s
-  // simulate some output associated to this
-  for(int i=0;i<flashes;i++){  
-    delay(100);
-    digitalWrite(ledPin,HIGH);
-    delay(100);
-    digitalWrite(ledPin,LOW);
-  }
+  for(int sid=0;sid<=5;sid++)sensorA[sid].count();
+  for(int sid=6;sid<11;sid++)sensorA[sid-6].count();
 
   // we have to wait for the interrupt condition to finish
   // otherwise we might go to sleep with an ongoing condition and never wake up again.
@@ -69,7 +64,7 @@ void handleInterrupt(){
 // handy for interrupts triggered by buttons
 // normally signal a few due to bouncing issues
 void cleanInterrupts(){
-  EIFR=0x01;
+  //EIFR=0x01;
   awakenByInterrupt=false;
 }  
 /**
