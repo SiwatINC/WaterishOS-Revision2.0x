@@ -27,7 +27,6 @@
 Adafruit_MCP23017 mcp;
 long tslr=0;
 WiFiClient espClient;
-String nodename="devkit";
 PubSubClient client("siwatsystem.com", 1883, espClient);
 PubSubClientTools mqtt(client);
 ThreadController threadControl = ThreadController();
