@@ -74,7 +74,7 @@ void setup(){
     //wait for it ... (Wait for Wifi Connection
     connectionattempt++;
     delay(500);
-    if(connnectionattempt>=20){
+    if(connectionattempt>=20){
       online=false;
       break;
     }
