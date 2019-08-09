@@ -6,7 +6,8 @@ byte ledPin=13;
 byte InteruptPinA=1;
 byte InteruptPinB=3;
 byte arduinoInterrupt=1;
-FlowMeter sensor[12]= 
+FlowMeter sensorA[6]= FlowMeter(1);
+FlowMeter sensorB[6]= FlowMeter(3);
 volatile boolean awakenByInterrupt = false;
 
 // Two pins at the MCP (Ports A/B where some buttons have been setup.)
@@ -47,11 +48,7 @@ void handleInterrupt(){
   
   // We will flash the led 1 or 2 times depending on the PIN that triggered the Interrupt
   // 3 and 4 flases are supposed to be impossible conditions... just for debugging.
-  uint8_t flashes=4; 
-  if(pin==mcpPinA) flashes=1;
-  if(pin==mcpPinB) flashes=2;
-  if(val!=LOW) flashes=3;
-
+  for(int sid=0;sid<=7)s
   // simulate some output associated to this
   for(int i=0;i<flashes;i++){  
     delay(100);
@@ -75,7 +72,6 @@ void cleanInterrupts(){
   EIFR=0x01;
   awakenByInterrupt=false;
 }  
-
 /**
  * main routine: sleep the arduino, and wake up on Interrups.
  * the LowPower library, or similar is required for sleeping, but sleep is simulated here.
@@ -84,18 +80,9 @@ void cleanInterrupts(){
  * and you can wait for interrupts while waiting.
  */
 void loop(){
-  
-  // enable interrupts before going to sleep/wait
-  // And we setup a callback for the arduino INT handler.
   attachInterrupt(arduinoInterrupt,intCallBack,FALLING);
-  
-  // Simulate a deep sleep
   while(!awakenByInterrupt);
-  // Or sleep the arduino, this lib is great, if you have it.
-  //LowPower.powerDown(SLEEP_1S, ADC_OFF, BOD_OFF);
-  
   // disable interrupts while handling them.
   detachInterrupt(arduinoInterrupt);
-  
   if(awakenByInterrupt) handleInterrupt();
 }
