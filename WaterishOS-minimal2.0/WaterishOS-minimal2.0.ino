@@ -28,7 +28,6 @@
 #include <Thread.h>
 #include <ThreadController.h>
 Adafruit_MCP23017 mcp;
-String MQTT_SERVER = "";
 String ssid = "";
 String password = "";
 byte InteruptPinA=1;
@@ -37,7 +36,7 @@ byte arduinoInterrupt=1;
 long tslr=0;
 WiFiClient espClient;
 String nodename="devkit";
-PubSubClient client(MQTT_SERVER, 1883, espClient);
+PubSubClient client("siwatsystem.com", 1883, espClient);
 PubSubClientTools mqtt(client);
 ThreadController threadControl = ThreadController();
 Thread mqttupdater = Thread();
@@ -97,6 +96,7 @@ void setup(){
   mqttupdater.onRun(updatemqtt);
   mqttupdater.setInterval(1000);
   threadControl.add(&datacollector);
+  threadControl.add(&mqttupdater);
   }
 
 void loop(){
