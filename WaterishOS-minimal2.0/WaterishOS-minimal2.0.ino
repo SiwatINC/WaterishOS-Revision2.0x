@@ -1,8 +1,6 @@
 #include <PubSubClient.h>
-
 #include <MqttWildcard.h>
 #include <PubSubClientTools.h>
-
 #include <BearSSLHelpers.h>
 #include <CertStoreBearSSL.h>
 #include <ESP8266WiFi.h>
@@ -64,7 +62,7 @@ void setup(){
   int connectionattempt=0;
   while(WiFi.status() != WL_CONNECTED)
   {
-    //wait for it ... (Wait for Wifi Connection
+    //wait for it ... (Wait for Wifi Connection)
     connectionattempt++;
     delay(500);
     if(connectionattempt>=20){
