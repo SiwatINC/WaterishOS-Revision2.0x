@@ -17,22 +17,16 @@
 #include <WiFiClientSecureAxTLS.h>
 #include <WiFiClientSecureBearSSL.h>
 #include <WiFiServer.h>
-#include <WiFiServerSecure.h>
 #include <WiFiServerSecureAxTLS.h>
 #include <WiFiServerSecureBearSSL.h>
 #include <WiFiUdp.h>
-
+#include "config.h"
 #include <FlowMeter.h>
 #include <Wire.h>
 #include <Adafruit_MCP23017.h>
 #include <Thread.h>
 #include <ThreadController.h>
 Adafruit_MCP23017 mcp;
-String ssid = "";
-String password = "";
-byte InteruptPinA=1;
-byte InteruptPinB=3;
-byte arduinoInterrupt=1;
 long tslr=0;
 WiFiClient espClient;
 String nodename="devkit";
