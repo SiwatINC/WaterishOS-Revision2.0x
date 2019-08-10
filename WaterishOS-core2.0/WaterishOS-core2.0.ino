@@ -42,11 +42,11 @@ int menu;
 void drawmenu()
 {
   switch (menu)
-{
+  {
     case '1':
-  lcd.print(" Waterish OS OK ");
-  break;
-}
+      lcd.print(" Waterish OS OK ");
+      break;
+  }
 }
 void readA() {
   uint8_t pin = mcp.getLastInterruptPin();
