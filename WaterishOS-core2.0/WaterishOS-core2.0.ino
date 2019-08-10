@@ -45,7 +45,7 @@ void drawmenu()
 {
     case '1':
   lcd.print(" Waterish OS OK ");
-  break
+  break;
 }
 }
 void readA() {
