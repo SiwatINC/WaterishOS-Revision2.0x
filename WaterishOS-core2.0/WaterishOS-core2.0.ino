@@ -1,3 +1,4 @@
+#include <LiquidCrystal_I2C.h>
 #include <PubSubClient.h>
 #include <MqttWildcard.h>
 #include <PubSubClientTools.h>
@@ -24,6 +25,7 @@
 #include <Adafruit_MCP23017.h>
 #include <Thread.h>
 #include <ThreadController.h>
+#include "lcdcontrol.h"
 Adafruit_MCP23017 mcp;
 long tslr=0;
 WiFiClient espClient;
