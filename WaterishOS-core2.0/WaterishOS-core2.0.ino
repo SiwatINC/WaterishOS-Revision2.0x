@@ -71,8 +71,8 @@ void setup(){
   }
   attachInterrupt(digitalPinToInterrupt(1),readA,FALLING);
   attachInterrupt(digitalPinToInterrupt(3),readB,FALLING);
-  pinMode(1, FUNCTION_3); 
-  pinMode(3, FUNCTION_3); 
+  pinMode(1, FUNCTION_3);
+  pinMode(3, FUNCTION_3);
   pinMode(1,INPUT);
   pinMode(3,INPUT);
   mcp.begin();
