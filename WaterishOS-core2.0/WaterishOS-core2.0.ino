@@ -42,27 +42,12 @@ int menu;
 void drawmenu()
 {
   switch (menu)
-case: '1':
+{
+    case '1':
   lcd.print(" Waterish OS OK ");
-
+  break
 }
-};
-class disp {
-  public:
-    LiquidCrystal_I2C lcd(0x27, 16, 2);
-    int menu;
-    void setmenu(int mnp) {
-      this->menu = mnp;
-    }
-    void drawmenu()
-    {
-      switch (this->menu)
-case: '1':
-      this->lcd.print(" Waterish OS OK ");
-
-    }
-};
-
+}
 void readA() {
   uint8_t pin = mcp.getLastInterruptPin();
   uint8_t val = mcp.getLastInterruptPinValue();
