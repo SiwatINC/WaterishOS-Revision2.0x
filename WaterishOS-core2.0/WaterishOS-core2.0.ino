@@ -41,7 +41,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 int menu;
 void drawmenu()
 {
-  switch (this->menu)
+  switch (menu)
 case: '1':
   lcd.print(" Waterish OS OK ");
 
