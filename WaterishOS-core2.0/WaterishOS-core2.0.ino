@@ -115,7 +115,7 @@ void setup() {
   writelcd("Waterish OS a3.9","Reading  Sensors");
   delay(1000);
   writelcd(" Telemetry Node","siwatsystem.com");
-  if (client.connect("waterishos")) {
+  if (client.connect("waterishos",telemetryuser,telemetrykey)) {
     writelcd(" Telemetry Node","Connected");
     delay(1000);
   } else {
