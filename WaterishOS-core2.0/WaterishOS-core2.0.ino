@@ -35,6 +35,9 @@ Thread mqttupdater = Thread();
 Thread datacollector = Thread();
 Thread lcdmanager = Thread();
 boolean online = true;
+boolean sensorstate[12];
+boolean lastsensorstate[12];
+boolean firstrun = true;
 FlowMeter sensorA[6] = FlowMeter(14);
 FlowMeter sensorB[6] = FlowMeter(3);
 volatile boolean awakenByInterrupt = false;
@@ -55,13 +58,15 @@ void updatelcd()
 void ICACHE_RAM_ATTR readA() {
   uint8_t pin = mcp.getLastInterruptPin();
   uint8_t val = mcp.getLastInterruptPinValue();
-  for (int sid = 0; sid <= 5; sid++)sensorA[sid].count();
-  mqtt.publish("/waterishos/debug","Aterupted");
+  sensorA[pin].count();
+  mqtt.publish("/waterishos/debug", "Aterupt");
+  for (int counter=0; counter <= 15; counter++)mcp.digitalRead(counter);
 }
 void ICACHE_RAM_ATTR readB() {
   uint8_t pin = mcp.getLastInterruptPin();
   uint8_t val = mcp.getLastInterruptPinValue();
   for (int sid = 8; sid < 13; sid++)sensorB[sid - 8].count();
+  for (int counter=0; counter <= 15; counter++)mcp.digitalRead(counter);
 }
 void collectdata() {
   for (int sid = 0; sid <= 5; sid++)sensorA[sid].tick(1000);
@@ -100,12 +105,12 @@ void setup() {
   pinMode(1, INPUT);
   pinMode(3, INPUT);
   pinMode(14, INPUT);
-  attachInterrupt(digitalPinToInterrupt(14), readA, FALLING);
-  attachInterrupt(digitalPinToInterrupt(3), readB, FALLING);
+  attachInterrupt(digitalPinToInterrupt(14), readA, RISING);
+  attachInterrupt(digitalPinToInterrupt(3), readB, RISING);
   delay(1000);
   writelcd("Boot Sequence P3","Waking Processor");
   mcp.begin();
-  mcp.setupInterrupts(true, false, LOW);
+  mcp.setupInterrupts(false, false, HIGH);
   for (int i = 0; i <= 15; i++)
   {
     mcp.pinMode(i, INPUT);
