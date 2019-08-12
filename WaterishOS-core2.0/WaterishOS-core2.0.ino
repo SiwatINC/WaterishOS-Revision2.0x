@@ -82,23 +82,27 @@ void setup() {
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   int connectionattempt = 0;
-  while (WiFi.status() != WL_CONNECTED)
+  while (WiFi.status() != WL_CONNECTED && online)
   {
     //wait for it ... (Wait for Wifi Connection)
-    writelcd("WiFi Connecting","  Attempt "+String(connectionattempt));
+    writelcd("WiFi Connecting","   Attempt "+String(connectionattempt));
     connectionattempt++;
     delay(500);
     if (connectionattempt >= 20) {
+      writelcd(" Cannot Connect"," Going Offline!");
+      delay(3000);
       online = false;
-      break;
     }
   }
+  writelcd("Boot Sequence P3"," Loading Kernel");
   attachInterrupt(digitalPinToInterrupt(1), readA, FALLING);
   attachInterrupt(digitalPinToInterrupt(3), readB, FALLING);
   pinMode(1, FUNCTION_3);
   pinMode(3, FUNCTION_3);
   pinMode(1, INPUT);
   pinMode(3, INPUT);
+  delay(1000);
+  writelcd("Boot Sequence P3","Waking Processor");
   mcp.begin();
   mcp.setupInterrupts(true, false, LOW);
   for (int i = 0; i <= 15; i++)
@@ -106,15 +110,17 @@ void setup() {
     mcp.pinMode(i, INPUT);
     mcp.setupInterruptPin(i, RISING);
   }
+  delay(1000);
+  writelcd("Boot Sequence P3","    Success!");
   datacollector.onRun(collectdata);
   datacollector.setInterval(1000);
-  mqttupdater.onRun(updatemqtt);
-  mqttupdater.setInterval(1000);
+  if(online)mqttupdater.onRun(updatemqtt);
+  if(online)mqttupdater.setInterval(1000);
   threadControl.add(&datacollector);
-  threadControl.add(&mqttupdater);
+  if(online)threadControl.add(&mqttupdater);
 }
 
 void loop() {
-  client.loop();
+  if(online)client.loop();
   threadControl.run();
 }
