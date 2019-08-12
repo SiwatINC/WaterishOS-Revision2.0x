@@ -85,7 +85,7 @@ void setup() {
     writelcd("WiFi Connecting","   Attempt "+String(connectionattempt));
     connectionattempt++;
     delay(500);
-    if (connectionattempt >= 20) {
+    if (connectionattempt >= 60) {
       writelcd(" Cannot Connect"," Going Offline!");
       delay(3000);
       online = false;
