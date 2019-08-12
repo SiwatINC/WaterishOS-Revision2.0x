@@ -55,12 +55,12 @@ void drawmenu()
       break;
   }
 }
-void readA() {
+void ICACHE_RAM_ATTR readA() {
   uint8_t pin = mcp.getLastInterruptPin();
   uint8_t val = mcp.getLastInterruptPinValue();
   for (int sid = 0; sid <= 5; sid++)sensorA[sid].count();
 }
-void readB() {
+void ICACHE_RAM_ATTR readB() {
   uint8_t pin = mcp.getLastInterruptPin();
   uint8_t val = mcp.getLastInterruptPinValue();
   for (int sid = 8; sid < 13; sid++)sensorB[sid - 8].count();
