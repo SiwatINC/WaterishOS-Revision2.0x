@@ -61,6 +61,7 @@ void ICACHE_RAM_ATTR readA() {
   sensorA[pin].count();
   mqtt.publish("/waterishos/debug", "Aterupt");
   for (int counter=0; counter <= 15; counter++)mcp.digitalRead(counter);
+  Serial.print("A interupted"+(int)digitalRead(14));
 }
 void ICACHE_RAM_ATTR readB() {
   uint8_t pin = mcp.getLastInterruptPin();
@@ -100,20 +101,17 @@ void setup() {
   if(online)writelcd(" WiFi Connected",wifiname);
   delay(3000);
   writelcd("Boot Sequence P3"," Loading Kernel");
-  pinMode(1, FUNCTION_3);
-  pinMode(3, FUNCTION_3);
-  pinMode(1, INPUT);
-  pinMode(3, INPUT);
+  Serial.begin(115200);
   pinMode(14, INPUT);
   attachInterrupt(digitalPinToInterrupt(14), readA, RISING);
-  attachInterrupt(digitalPinToInterrupt(3), readB, RISING);
   delay(1000);
   writelcd("Boot Sequence P3","Waking Processor");
   mcp.begin();
-  mcp.setupInterrupts(false, false, HIGH);
+  mcp.setupInterrupts(false, false, LOW);
   for (int i = 0; i <= 15; i++)
   {
     mcp.pinMode(i, INPUT);
+    mcp.pullUp(i, LOW);
     mcp.setupInterruptPin(i, RISING);
   }
   delay(1000);
@@ -140,6 +138,7 @@ void setup() {
   threadControl.add(&lcdmanager);
   if(online)threadControl.add(&mqttupdater);
   if(online)updatemqtt();
+  
 }
 
 void loop() {
