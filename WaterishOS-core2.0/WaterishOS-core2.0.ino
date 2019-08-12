@@ -35,7 +35,7 @@ Thread mqttupdater = Thread();
 Thread datacollector = Thread();
 Thread lcdmanager = Thread();
 boolean online = true;
-FlowMeter sensorA[6] = FlowMeter(1);
+FlowMeter sensorA[6] = FlowMeter(14);
 FlowMeter sensorB[6] = FlowMeter(3);
 volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
@@ -56,6 +56,7 @@ void ICACHE_RAM_ATTR readA() {
   uint8_t pin = mcp.getLastInterruptPin();
   uint8_t val = mcp.getLastInterruptPinValue();
   for (int sid = 0; sid <= 5; sid++)sensorA[sid].count();
+  mqtt.publish("/waterishos/debug","Aterupted");
 }
 void ICACHE_RAM_ATTR readB() {
   uint8_t pin = mcp.getLastInterruptPin();
@@ -94,12 +95,13 @@ void setup() {
   if(online)writelcd(" WiFi Connected",wifiname);
   delay(3000);
   writelcd("Boot Sequence P3"," Loading Kernel");
-  attachInterrupt(digitalPinToInterrupt(1), readA, FALLING);
-  attachInterrupt(digitalPinToInterrupt(3), readB, FALLING);
   pinMode(1, FUNCTION_3);
   pinMode(3, FUNCTION_3);
   pinMode(1, INPUT);
   pinMode(3, INPUT);
+  pinMode(14, INPUT);
+  attachInterrupt(digitalPinToInterrupt(14), readA, FALLING);
+  attachInterrupt(digitalPinToInterrupt(3), readB, FALLING);
   delay(1000);
   writelcd("Boot Sequence P3","Waking Processor");
   mcp.begin();
@@ -132,6 +134,7 @@ void setup() {
   threadControl.add(&datacollector);
   threadControl.add(&lcdmanager);
   if(online)threadControl.add(&mqttupdater);
+  if(online)updatemqtt();
 }
 
 void loop() {
