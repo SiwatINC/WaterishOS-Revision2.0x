@@ -112,6 +112,8 @@ void setup() {
   }
   delay(1000);
   writelcd("Boot Sequence P3","    Success!");
+  delay(2000);
+  writelcd("Waterish OS a3.9","Reading  Sensors");
   datacollector.onRun(collectdata);
   datacollector.setInterval(1000);
   if(online)mqttupdater.onRun(updatemqtt);
