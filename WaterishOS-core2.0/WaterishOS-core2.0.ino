@@ -33,6 +33,7 @@ PubSubClientTools mqtt(client);
 ThreadController threadControl = ThreadController();
 Thread mqttupdater = Thread();
 Thread datacollector = Thread();
+Thread lcdmanager = Thread();
 boolean online = true;
 FlowMeter sensorA[6] = FlowMeter(1);
 FlowMeter sensorB[6] = FlowMeter(3);
@@ -45,15 +46,11 @@ void writelcd(String line1, String line2){
   lcd.setCursor(0,1);
   lcd.print(line2);
 }
-void drawmenu()
+void updatelcd()
 {
-  switch (menu)
-  {
-    case '1':
-      lcd.print(" Waterish OS OK ");
-      
-      break;
-  }
+  writelcd("Waterish OS S[A]",String(sensorA[0].getCurrentFlowrate())+" "+String(sensorA[1].getCurrentFlowrate())+" "+String(sensorA[2].getCurrentFlowrate())+" "+" "+String(sensorA[3].getCurrentFlowrate())+" "+String(sensorA[4].getCurrentFlowrate())+" "+String(sensorA[5].getCurrentFlowrate()));
+  delay(5000);
+  writelcd("Waterish OS S[B]",String(sensorB[0].getCurrentFlowrate())+" "+String(sensorB[1].getCurrentFlowrate())+" "+String(sensorB[2].getCurrentFlowrate())+" "+" "+String(sensorB[3].getCurrentFlowrate())+" "+String(sensorB[4].getCurrentFlowrate())+" "+String(sensorB[5].getCurrentFlowrate()));
 }
 void ICACHE_RAM_ATTR readA() {
   uint8_t pin = mcp.getLastInterruptPin();
@@ -114,11 +111,16 @@ void setup() {
   writelcd("Boot Sequence P3","    Success!");
   delay(2000);
   writelcd("Waterish OS a3.9","Reading  Sensors");
+  delay(1000);
+  
   datacollector.onRun(collectdata);
   datacollector.setInterval(1000);
   if(online)mqttupdater.onRun(updatemqtt);
   if(online)mqttupdater.setInterval(1000);
+  lcdmanager.onRun(updatelcd);
+  lcdmanager.setInterval(5000);
   threadControl.add(&datacollector);
+  threadControl.add(&lcdmanager);
   if(online)threadControl.add(&mqttupdater);
 }
 
