@@ -48,9 +48,9 @@ void writelcd(String line1, String line2){
 }
 void updatelcd()
 {
-  writelcd("Waterish OS S[A]",String(sensorA[0].getCurrentFlowrate())+" "+String(sensorA[1].getCurrentFlowrate())+" "+String(sensorA[2].getCurrentFlowrate())+" "+" "+String(sensorA[3].getCurrentFlowrate())+" "+String(sensorA[4].getCurrentFlowrate())+" "+String(sensorA[5].getCurrentFlowrate()));
+  writelcd("Waterish OS S[A]",String((int)sensorA[0].getCurrentFlowrate())+" "+String((int)sensorA[1].getCurrentFlowrate())+" "+String((int)sensorA[2].getCurrentFlowrate())+" "+String((int)sensorA[3].getCurrentFlowrate())+" "+String((int)sensorA[4].getCurrentFlowrate())+" "+String((int)sensorA[5].getCurrentFlowrate()));
   delay(5000);
-  writelcd("Waterish OS S[B]",String(sensorB[0].getCurrentFlowrate())+" "+String(sensorB[1].getCurrentFlowrate())+" "+String(sensorB[2].getCurrentFlowrate())+" "+" "+String(sensorB[3].getCurrentFlowrate())+" "+String(sensorB[4].getCurrentFlowrate())+" "+String(sensorB[5].getCurrentFlowrate()));
+  writelcd("Waterish OS S[B]",String((int)sensorB[0].getCurrentFlowrate())+" "+String((int)sensorB[1].getCurrentFlowrate())+" "+String((int)sensorB[2].getCurrentFlowrate())+" "+String((int)sensorB[3].getCurrentFlowrate())+" "+String((int)sensorB[4].getCurrentFlowrate())+" "+String((int)sensorB[5].getCurrentFlowrate()));
 }
 void ICACHE_RAM_ATTR readA() {
   uint8_t pin = mcp.getLastInterruptPin();
