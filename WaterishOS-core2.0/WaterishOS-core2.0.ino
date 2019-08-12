@@ -38,8 +38,6 @@ boolean online = true;
 boolean sensorstate[12];
 boolean lastsensorstate[12];
 boolean firstrun = true;
-FlowMeter sensorA[6] = FlowMeter(14);
-FlowMeter sensorB[6] = FlowMeter(3);
 FlowMeter sensor1 = FlowMeter(12);
 FlowMeter sensor2 = FlowMeter(13);
 volatile boolean awakenByInterrupt = false;
@@ -53,26 +51,7 @@ void writelcd(String line1, String line2){
 }
 void updatelcd()
 {
-  writelcd("Waterish OS S[A]",String((int)sensorA[0].getCurrentFlowrate())+" "+String((int)sensorA[1].getCurrentFlowrate())+" "+String((int)sensorA[2].getCurrentFlowrate())+" "+String((int)sensorA[3].getCurrentFlowrate())+" "+String((int)sensorA[4].getCurrentFlowrate())+" "+String((int)sensorA[5].getCurrentFlowrate()));
-  delay(1000);
-  writelcd("Waterish OS S[B]",String((int)sensorB[0].getCurrentFlowrate())+" "+String((int)sensorB[1].getCurrentFlowrate())+" "+String((int)sensorB[2].getCurrentFlowrate())+" "+String((int)sensorB[3].getCurrentFlowrate())+" "+String((int)sensorB[4].getCurrentFlowrate())+" "+String((int)sensorB[5].getCurrentFlowrate()));
-  delay(1000);
-  writelcd("Waterish OS INTN",String((int)sensor1.getCurrentFlowrate())+"   "+String((int)sensor2.getCurrentFlowrate()));
-}
-
-void ICACHE_RAM_ATTR readA() {
-  uint8_t pin = mcp.getLastInterruptPin();
-  uint8_t val = mcp.getLastInterruptPinValue();
-  sensorA[pin].count();
-  mqtt.publish("/waterishos/debug", "Aterupt");
-  for (int counter=0; counter <= 15; counter++)mcp.digitalRead(counter);
-  Serial.print("A interupted"+String((int)digitalRead(14)));
-}
-void ICACHE_RAM_ATTR readB() {
-  uint8_t pin = mcp.getLastInterruptPin();
-  uint8_t val = mcp.getLastInterruptPinValue();
-  for (int sid = 8; sid < 13; sid++)sensorB[sid - 8].count();
-  for (int counter=0; counter <= 15; counter++)mcp.digitalRead(counter);
+  writelcd("1: "+String((int)sensor1.getCurrentFlowrate())+"L/h "+String(sensor1.getTotalVolume())+"L","2:"+String((int)sensor2.getCurrentFlowrate())+"L/h "+String(sensor2.getTotalVolume())+"L");
 }
 void ICACHE_RAM_ATTR read1() {
   sensor1.count();
@@ -81,16 +60,10 @@ void ICACHE_RAM_ATTR read2() {
   sensor2.count();
 }
 void collectdata() {
-  for (int sid = 0; sid <= 5; sid++)sensorA[sid].tick(1000);
-  for (int sid = 8; sid < 13; sid++)sensorB[sid - 8].tick(1000);
   sensor1.tick(1000);
   sensor2.tick(1000);
 }
 void updatemqtt() {
-  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/flowrateA/" + String(counter+1), String(sensorA[counter].getCurrentFlowrate()));
-  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/volumeA/" + String(counter+1), String(sensorA[counter].getTotalVolume()));
-  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/flowrateB/" + String(counter+1), String(sensorB[counter].getCurrentFlowrate()));
-  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/volumeB/" + String(counter+1), String(sensorB[counter].getTotalVolume()));
   mqtt.publish("/waterishos/node" + nodename + "/flowrate1", String(sensor1.getCurrentFlowrate()));
   mqtt.publish("/waterishos/node" + nodename + "/volume1", String(sensor1.getTotalVolume()));
   mqtt.publish("/waterishos/node" + nodename + "/flowrate2", String(sensor2.getCurrentFlowrate()));
@@ -122,14 +95,14 @@ void setup() {
   pinMode(14, INPUT_PULLUP);
   pinMode(12, INPUT);
   pinMode(13, INPUT);
-  attachInterrupt(digitalPinToInterrupt(14), readA, RISING);
-  attachInterrupt(digitalPinToInterrupt(1), readB, RISING);
   attachInterrupt(digitalPinToInterrupt(12), read1, RISING);
   attachInterrupt(digitalPinToInterrupt(13), read2, RISING);
   delay(1000);
   writelcd("Boot Sequence P3","Waking Processor");
+  delay(1000);
+  writelcd("   SETTINGS.H","co-processor:OFF");
+  delay(3000);
   mcp.begin();
-  mcp.setupInterrupts(true, false, LOW);
   for (int i = 0; i <= 15; i++)
   {
     mcp.pinMode(i, INPUT);
@@ -155,7 +128,7 @@ void setup() {
   if(online)mqttupdater.onRun(updatemqtt);
   if(online)mqttupdater.setInterval(1000);
   lcdmanager.onRun(updatelcd);
-  lcdmanager.setInterval(1000);
+  lcdmanager.setInterval(250);
   threadControl.add(&datacollector);
   threadControl.add(&lcdmanager);
   if(online)threadControl.add(&mqttupdater);
