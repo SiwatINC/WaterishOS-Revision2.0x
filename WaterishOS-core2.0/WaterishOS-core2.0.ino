@@ -40,6 +40,8 @@ boolean lastsensorstate[12];
 boolean firstrun = true;
 FlowMeter sensorA[6] = FlowMeter(14);
 FlowMeter sensorB[6] = FlowMeter(3);
+FlowMeter sensor1 = FlowMeter(12);
+FlowMeter sensor2 = FlowMeter(13);
 volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
@@ -61,13 +63,19 @@ void ICACHE_RAM_ATTR readA() {
   sensorA[pin].count();
   mqtt.publish("/waterishos/debug", "Aterupt");
   for (int counter=0; counter <= 15; counter++)mcp.digitalRead(counter);
-  Serial.print("A interupted"+(int)digitalRead(14));
+  Serial.print("A interupted"+String((int)digitalRead(14)));
 }
 void ICACHE_RAM_ATTR readB() {
   uint8_t pin = mcp.getLastInterruptPin();
   uint8_t val = mcp.getLastInterruptPinValue();
   for (int sid = 8; sid < 13; sid++)sensorB[sid - 8].count();
   for (int counter=0; counter <= 15; counter++)mcp.digitalRead(counter);
+}
+void ICACHE_RAM_ATTR read1() {
+  
+}
+void ICACHE_RAM_ATTR read2() {
+  
 }
 void collectdata() {
   for (int sid = 0; sid <= 5; sid++)sensorA[sid].tick(1000);
@@ -102,12 +110,17 @@ void setup() {
   delay(3000);
   writelcd("Boot Sequence P3"," Loading Kernel");
   Serial.begin(115200);
-  pinMode(14, INPUT);
+  pinMode(14, INPUT_PULLUP);
+  pinMode(12, INPUT);
+  pinMode(13, INPUT);
   attachInterrupt(digitalPinToInterrupt(14), readA, RISING);
+  attachInterrupt(digitalPinToInterrupt(1), readB, RISING);
+  attachInterrupt(digitalPinToInterrupt(12), read1, RISING);
+  attachInterrupt(digitalPinToInterrupt(13), read2, RISING);
   delay(1000);
   writelcd("Boot Sequence P3","Waking Processor");
   mcp.begin();
-  mcp.setupInterrupts(false, false, LOW);
+  mcp.setupInterrupts(true, false, LOW);
   for (int i = 0; i <= 15; i++)
   {
     mcp.pinMode(i, INPUT);
