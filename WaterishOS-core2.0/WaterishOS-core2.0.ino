@@ -67,10 +67,10 @@ void collectdata() {
   for (int sid = 8; sid < 13; sid++)sensorB[sid - 8].tick(1000);
 }
 void updatemqtt() {
-  for (int counter; counter <= 6; counter++)mqtt.publish("/waterishos/node" + nodename + "/flowrateA/" + counter, String(sensorA[counter].getCurrentFlowrate()));
-  for (int counter; counter <= 6; counter++)mqtt.publish("/waterishos/node" + nodename + "/volumeA/" + counter, String(sensorA[counter].getTotalVolume()));
-  for (int counter; counter <= 6; counter++)mqtt.publish("/waterishos/node" + nodename + "/flowrateB/" + counter, String(sensorB[counter].getCurrentFlowrate()));
-  for (int counter; counter <= 6; counter++)mqtt.publish("/waterishos/node" + nodename + "/volumeB/" + counter, String(sensorB[counter].getTotalVolume()));
+  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/flowrateA/" + String(counter+1), String(sensorA[counter].getCurrentFlowrate()));
+  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/volumeA/" + String(counter+1), String(sensorA[counter].getTotalVolume()));
+  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/flowrateB/" + String(counter+1), String(sensorB[counter].getCurrentFlowrate()));
+  for (int counter=0; counter <= 5; counter++)mqtt.publish("/waterishos/node" + nodename + "/volumeB/" + String(counter+1), String(sensorB[counter].getTotalVolume()));
 }
 void setup() {
   lcd.begin();
