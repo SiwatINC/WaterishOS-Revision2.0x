@@ -37,14 +37,21 @@ boolean online = true;
 FlowMeter sensorA[6] = FlowMeter(1);
 FlowMeter sensorB[6] = FlowMeter(3);
 volatile boolean awakenByInterrupt = false;
-LiquidCrystal_I2C lcd(0x27, 16, 2);
+LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
+void writelcd(String line1, String line2){
+  lcd.clear();
+  lcd.print(line1);
+  lcd.setCursor(0,1);
+  lcd.print(line2);
+}
 void drawmenu()
 {
   switch (menu)
   {
     case '1':
       lcd.print(" Waterish OS OK ");
+      
       break;
   }
 }
@@ -69,12 +76,16 @@ void updatemqtt() {
   for (int counter; counter <= 6; counter++)mqtt.publish("/waterishos/node" + nodename + "/volumeB/" + counter, String(sensorB[counter].getTotalVolume()));
 }
 void setup() {
+  lcd.begin();
+  writelcd(" Siwat INC (tm) ","  Waterish OS");
+  delay(1000);
   WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   int connectionattempt = 0;
   while (WiFi.status() != WL_CONNECTED)
   {
     //wait for it ... (Wait for Wifi Connection)
+    writelcd("WiFi Connecting","  Attempt "+String(connectionattempt));
     connectionattempt++;
     delay(500);
     if (connectionattempt >= 20) {
