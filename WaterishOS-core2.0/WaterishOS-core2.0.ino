@@ -87,10 +87,12 @@ void setup() {
     delay(500);
     if (connectionattempt >= 60) {
       writelcd(" Cannot Connect"," Going Offline!");
-      delay(3000);
       online = false;
     }
   }
+  String wifiname(ssid);
+  if(online)writelcd(" WiFi Connected",wifiname);
+  delay(3000);
   writelcd("Boot Sequence P3"," Loading Kernel");
   attachInterrupt(digitalPinToInterrupt(1), readA, FALLING);
   attachInterrupt(digitalPinToInterrupt(3), readB, FALLING);
@@ -112,7 +114,15 @@ void setup() {
   delay(2000);
   writelcd("Waterish OS a3.9","Reading  Sensors");
   delay(1000);
-  
+  writelcd("Telemetry Control","siwatsystem.com");
+  if (client.connect("waterishos")) {
+    writelcd("Telemetry Control","Connected");
+    delay(1000);
+  } else {
+    writelcd("Telemetry Control"," Failed Offline");
+    online=false;
+    delay(3000);
+  }
   datacollector.onRun(collectdata);
   datacollector.setInterval(1000);
   if(online)mqttupdater.onRun(updatemqtt);
