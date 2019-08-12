@@ -19,7 +19,7 @@
 #include <WiFiServerSecureAxTLS.h>
 #include <WiFiServerSecureBearSSL.h>
 #include <WiFiUdp.h>
-#include "config.h"
+#include "private.h"
 #include <FlowMeter.h>
 #include <Wire.h>
 #include <Adafruit_MCP23017.h>
