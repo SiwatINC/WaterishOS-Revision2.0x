@@ -114,12 +114,12 @@ void setup() {
   delay(2000);
   writelcd("Waterish OS a3.9","Reading  Sensors");
   delay(1000);
-  writelcd("Telemetry Control","siwatsystem.com");
+  writelcd(" Telemetry Node","siwatsystem.com");
   if (client.connect("waterishos")) {
-    writelcd("Telemetry Control","Connected");
+    writelcd(" Telemetry Node","Connected");
     delay(1000);
   } else {
-    writelcd("Telemetry Control"," Failed Offline");
+    writelcd(" Telemetry Node"," Failed Offline");
     online=false;
     delay(3000);
   }
