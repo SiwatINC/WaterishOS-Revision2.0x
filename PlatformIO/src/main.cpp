@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <PubSubClient.h>
 #include <MqttWildcard.h>
