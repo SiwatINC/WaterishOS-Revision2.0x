@@ -1,4 +1,4 @@
-return sqlvolume;#include <Arduino.h>
+volume2return sqlvolume;#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <BearSSLHelpers.h>
 #include <CertStoreBearSSL.h>
@@ -48,7 +48,7 @@ float cuvolume2=0;
 volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
-float retrieveVOL(){
+void retrieveVOL(){
   char query[] = "SELECT volume1 FROM  WHERE token = '"+token+"'";
   row_values *row = NULL;
   cur.execute(query);
@@ -152,7 +152,7 @@ void setup() {
     delay(3000);
   }
   //MySQL Persist Object Retrival
-  cuvolume=retrieveVOL();
+  retrieveVOL();
   datacollector.onRun(collectdata);
   datacollector.setInterval(1000);
   if(online)mqttupdater.onRun(updatemqtt);
