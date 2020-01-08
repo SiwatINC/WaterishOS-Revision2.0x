@@ -23,14 +23,14 @@
 #include <Adafruit_MCP23017.h>
 #include <Thread.h>
 #include <ThreadController.h>
-#include <MySQL_Connection.h>
-#include <MySQL_Cursor.h>
-String token="h09-9d8fji4mp";
+#include <HttpClient.h>
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+char token[] = "h09-9d8fji4mp";
+const char backend[] = "siwatinc.com";
+const int kNetworkTimeout = 30*1000;
 Adafruit_MCP23017 mcp;
 long tslr = 0;
 WiFiClient espClient;
-MySQL_Connection conn((Client *)&espClient);
-MySQL_Cursor cur = MySQL_Cursor(&conn);
 ThreadController threadControl = ThreadController();
 Thread mqttupdater = Thread();
 Thread datacollector = Thread();
@@ -48,23 +48,9 @@ float cuvolume2=0;
 volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
+HttpClient http(espClient);
 void retrieveVOL(){
-  char query[] = "SELECT volume1 FROM  WHERE token = '"+token+"' ORDER BY id DESC LIMIT 1";
-  row_values *row = NULL;
-  cur.execute(query);
-  cur.get_columns();
-  while (row != NULL) {
-    row = cur.get_next_row();
-    if (row != NULL) cuvolume1 = atol(row->values[0]);
-  }
-  query[] = "SELECT volume2 FROM  WHERE token = '"+token+"' ORDER BY id DESC LIMIT 1";
-  *row = NULL;
-  cur.execute(query);
-  cur.get_columns();
-  while (row != NULL) {
-    row = cur.get_next_row();
-    if (row != NULL)cuvolume2 = atol(row->values[0]);
-  }
+
 }
 void writelcd(String line1, String line2){
   lcd.clear();
@@ -72,8 +58,7 @@ void writelcd(String line1, String line2){
   lcd.setCursor(0,1);
   lcd.print(line2);
 }
-void updatelcd()
-{
+void updatelcd(){
    volume1=cuvolume1+sensor1.getTotalVolume();
   volume2=cuvolume2+sensor2.getTotalVolume();
   writelcd("1: "+String((int)sensor1.getCurrentFlowrate())+"L/h "+String(volume1)+"L","2:"+String((int)sensor2.getCurrentFlowrate())+"L/h "+String(volume2)+"L");
@@ -90,8 +75,7 @@ void collectdata() {
 }
 void updatemqtt() {
   //UPDATE USING MySQL
-  char query[] = "INSERT INTO 'flowlog'(a,b,c) VALUES ('a','b','c')";
-  cur.execute(query);
+
 }
 void setup() {
   lcd.init();
@@ -133,7 +117,7 @@ void setup() {
   writelcd("Waterish OS s6.4","Reading  Sensors");
   delay(1000);
   writelcd(" Telemetry Node","siwatsystem.com");
-  if (conn.connect(server_addr, 3306, mysqluser, mysqlpassword)) {
+  if (true) {
     writelcd(" Telemetry Node","Connected");
     delay(1000);
   } else {
@@ -157,6 +141,5 @@ void setup() {
 }
 
 void loop() {
-  if(online)client.loop();
   threadControl.run();
 }
