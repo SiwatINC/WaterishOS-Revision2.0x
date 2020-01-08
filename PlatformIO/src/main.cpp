@@ -1,4 +1,4 @@
-volume2return sqlvolume;#include <Arduino.h>
+idvolume2return sqlvolume;#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <BearSSLHelpers.h>
 #include <CertStoreBearSSL.h>
@@ -49,28 +49,22 @@ volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
 void retrieveVOL(){
-  char query[] = "SELECT volume1 FROM  WHERE token = '"+token+"'";
+  char query[] = "SELECT volume1 FROM  WHERE token = '"+token+"' ORDER BY id DESC LIMIT 1";
   row_values *row = NULL;
   cur.execute(query);
   cur.get_columns();
-  do {
+  while (row != NULL) {
     row = cur.get_next_row();
-    if (row != NULL) {
-      cuvolume1 = atol(row->values[0]);
-    }
-  } while (row != NULL);
-  query[] = "SELECT volume2 FROM  WHERE token = '"+token+"'";
-  row_values *row = NULL;
+    if (row != NULL) cuvolume1 = atol(row->values[0]);
+  }
+  query[] = "SELECT volume2 FROM  WHERE token = '"+token+"' ORDER BY id DESC LIMIT 1";
+  *row = NULL;
   cur.execute(query);
   cur.get_columns();
-  do {
+  while (row != NULL) {
     row = cur.get_next_row();
-    if (row != NULL) {
-      cuvolume2 = atol(row->values[0]);
-    }
-  } while (row != NULL);
-  cur.close();
-  return sqlvolume;
+    if (row != NULL)cuvolume2 = atol(row->values[0]);
+  }
 }
 void writelcd(String line1, String line2){
   lcd.clear();
@@ -96,6 +90,8 @@ void collectdata() {
 }
 void updatemqtt() {
   //UPDATE USING MySQL
+  char query[] = "INSERT INTO 'flowlog'(a,b,c) VALUES ('a','b','c')";
+  cur.execute(query);
 }
 void setup() {
   lcd.init();
@@ -106,7 +102,6 @@ void setup() {
   int connectionattempt = 0;
   while (WiFi.status() != WL_CONNECTED && online)
   {
-    //wait for it ... (Wait for Wifi Connection)
     writelcd("WiFi Connecting","   Attempt "+String(connectionattempt));
     connectionattempt++;
     delay(500);
@@ -117,7 +112,6 @@ void setup() {
   }
   String wifiname(ssid);
   if(online)writelcd(" WiFi Connected",wifiname);
-  delay(3000);
   writelcd("Boot Sequence P3"," Loading Kernel");
   Serial.begin(115200);
   pinMode(14, INPUT_PULLUP);
@@ -125,11 +119,8 @@ void setup() {
   pinMode(13, INPUT);
   attachInterrupt(digitalPinToInterrupt(12), read1, RISING);
   attachInterrupt(digitalPinToInterrupt(13), read2, RISING);
-  delay(1000);
   writelcd("Boot Sequence P3","Waking Processor");
-  delay(1000);
   writelcd("   SETTINGS.H","co-processor:OFF");
-  delay(3000);
   mcp.begin();
   for (int i = 0; i <= 15; i++)
   {
@@ -137,9 +128,8 @@ void setup() {
     mcp.pullUp(i, LOW);
     mcp.setupInterruptPin(i, RISING);
   }
-  delay(1000);
   writelcd("Boot Sequence P3","    Success!");
-  delay(2000);
+  delay(500);
   writelcd("Waterish OS s6.4","Reading  Sensors");
   delay(1000);
   writelcd(" Telemetry Node","siwatsystem.com");
