@@ -25,11 +25,12 @@
 #include <ThreadController.h>
 #include <MySQL_Connection.h>
 #include <MySQL_Cursor.h>
+String token="h09-9d8fji4mp";
 Adafruit_MCP23017 mcp;
 long tslr = 0;
 WiFiClient espClient;
-MySQL_Connection conn(&espClient);
-
+MySQL_Connection conn((Client *)&espClient);
+MySQL_Cursor cur = MySQL_Cursor(&conn);
 ThreadController threadControl = ThreadController();
 Thread mqttupdater = Thread();
 Thread datacollector = Thread();
@@ -44,35 +45,10 @@ volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
 float retrieveVOL(){
-  char query[] = "SELECT population FROM world.city WHERE name = 'New York'";
+  float sqlvolume=0;
+  char query[] = "SELECT volume FROM  WHERE token = '"+token+"'";
   row_values *row = NULL;
-  long head_count = 0;
-    MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   delay(1000);
-
-  Serial.println("1) Demonstrating using a cursor dynamically allocated.");
-  // Execute the query
-  cur_mem->execute(query);
-  // Fetch the columns (required) but we don't use them.
-  column_names *columns = cur_mem->get_columns();
-
-  // Read the row (we are only expecting the one)
-  do {
-    row = cur_mem->get_next_row();
-    if (row != NULL) {
-      head_count = atol(row->values[0]);
-    }
-  } while (row != NULL);
-  // Deleting the cursor also frees up memory used
-  delete cur_mem;
-
-  // Show the result
-  Serial.print("  NYC pop = ");
-  Serial.println(head_count);
-
-  delay(500);
-
-  Serial.println("2) Demonstrating using a local, global cursor.");
   // Execute the query
   cur.execute(query);
   // Fetch the columns (required) but we don't use them.
@@ -81,11 +57,12 @@ float retrieveVOL(){
   do {
     row = cur.get_next_row();
     if (row != NULL) {
-      head_count = atol(row->values[0]);
+      sqlvolume = atol(row->values[0]);
     }
   } while (row != NULL);
   // Now we close the cursor to free any memory
   cur.close();
+  return sqlvolume;
 }
 void writelcd(String line1, String line2){
   lcd.clear();
