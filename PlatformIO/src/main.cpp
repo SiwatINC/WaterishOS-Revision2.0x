@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <FS.h>
+#include <ArduinoJson.h>
 #include <LiquidCrystal_I2C.h>
 #include <BearSSLHelpers.h>
 #include <CertStoreBearSSL.h>
@@ -52,8 +54,13 @@ volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
 HttpClient http(espClient);
+bool shouldSaveConfig = false;
 void retrieveVOL(){
 
+}
+void saveConfigCallback () {
+  Serial.println("Should save config");
+  shouldSaveConfig = true;
 }
 void writelcd(String line1, String line2){
   lcd.clear();
@@ -87,6 +94,27 @@ void setup() {
   lcd.init();
   writelcd(" Siwat INC (tm) ","  Waterish OS");
   delay(1000);
+  SPIFFS.begin()
+  if (SPIFFS.exists("/config.json")) {
+      File configFile = SPIFFS.open("/config.json", "r");
+      if (configFile) {
+        size_t size = configFile.size();
+        std::unique_ptr<char[]> buf(new char[size]);
+        configFile.readBytes(buf.get(), size);
+        DynamicJsonBuffer jsonBuffer;
+        JsonObject& json = jsonBuffer.parseObject(buf.get());
+        json.printTo(Serial);
+        if (json.success()) {
+          strcpy(mqtt_server, json["token"]);
+        } else {
+          Serial.println("failed to load json config");
+        }
+        configFile.close();
+      }
+    }
+  } else {
+    Serial.println("failed to mount FS");
+  }
   WiFiManager wifiManager;
   int connectionattempt = 0;
   online=true;
