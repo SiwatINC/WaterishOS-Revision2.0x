@@ -29,7 +29,7 @@ Adafruit_MCP23017 mcp;
 long tslr = 0;
 WiFiClient espClient;
 MySQL_Connection conn(&espClient);
-MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
+
 ThreadController threadControl = ThreadController();
 Thread mqttupdater = Thread();
 Thread datacollector = Thread();
@@ -47,7 +47,7 @@ float retrieveVOL(){
   char query[] = "SELECT population FROM world.city WHERE name = 'New York'";
   row_values *row = NULL;
   long head_count = 0;
-
+    MySQL_Cursor *cur_mem = new MySQL_Cursor(&conn);
   delay(1000);
 
   Serial.println("1) Demonstrating using a cursor dynamically allocated.");
