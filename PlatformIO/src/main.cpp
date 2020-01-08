@@ -24,6 +24,9 @@
 #include <Thread.h>
 #include <ThreadController.h>
 #include <HttpClient.h>
+#include <WiFiManager.h>
+#include <DNSServer.h>
+#include <ESP8266WebServer.h>
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 char token[] = "h09-9d8fji4mp";
 const char backend[] = "siwatinc.com";
@@ -77,23 +80,18 @@ void updatemqtt() {
   //UPDATE USING MySQL
 
 }
+void enterconfig(){
+    writelcd("FlowOS","Wizard Running");
+}
 void setup() {
   lcd.init();
   writelcd(" Siwat INC (tm) ","  Waterish OS");
   delay(1000);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
+  WiFiManager wifiManager;
   int connectionattempt = 0;
-  while (WiFi.status() != WL_CONNECTED && online)
-  {
-    writelcd("WiFi Connecting","   Attempt "+String(connectionattempt));
-    connectionattempt++;
-    delay(500);
-    if (connectionattempt >= 60) {
-      writelcd(" Cannot Connect"," Going Offline!");
-      online = false;
-    }
-  }
+  online=true;
+  wifiManager.setAPCallback(enterconfig);
+  wifiManager.autoConnect("FlowOSnode");
   String wifiname(ssid);
   if(online)writelcd(" WiFi Connected",wifiname);
   writelcd("Boot Sequence P3"," Loading Kernel");
