@@ -26,11 +26,15 @@
 #include <Adafruit_MCP23017.h>
 #include <Thread.h>
 #include <ThreadController.h>
+#include <MySQL_Connection.h>
+#include <MySQL_Cursor.h>
 Adafruit_MCP23017 mcp;
 long tslr = 0;
 WiFiClient espClient;
 PubSubClient client("siwatsystem.com", 1883, espClient);
 PubSubClientTools mqtt(client);
+MySQL_Connection conn(&espClient);
+MySQL_Cursor* cursor;
 ThreadController threadControl = ThreadController();
 Thread mqttupdater = Thread();
 Thread datacollector = Thread();
