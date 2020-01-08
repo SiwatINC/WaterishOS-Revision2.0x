@@ -1,4 +1,4 @@
-#include <Arduino.h>
+return sqlvolume;#include <Arduino.h>
 #include <LiquidCrystal_I2C.h>
 #include <BearSSLHelpers.h>
 #include <CertStoreBearSSL.h>
@@ -41,26 +41,34 @@ boolean lastsensorstate[12];
 boolean firstrun = true;
 FlowMeter sensor1 = FlowMeter(12);
 FlowMeter sensor2 = FlowMeter(13);
+float volume1=0;
+float volume2=0;
+float cuvolume1=0;
+float cuvolume2=0;
 volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
 float retrieveVOL(){
-  float sqlvolume=0;
-  char query[] = "SELECT volume FROM  WHERE token = '"+token+"'";
+  char query[] = "SELECT volume1 FROM  WHERE token = '"+token+"'";
   row_values *row = NULL;
-  delay(1000);
-  // Execute the query
   cur.execute(query);
-  // Fetch the columns (required) but we don't use them.
   cur.get_columns();
-  // Read the row (we are only expecting the one)
   do {
     row = cur.get_next_row();
     if (row != NULL) {
-      sqlvolume = atol(row->values[0]);
+      cuvolume1 = atol(row->values[0]);
     }
   } while (row != NULL);
-  // Now we close the cursor to free any memory
+  query[] = "SELECT volume2 FROM  WHERE token = '"+token+"'";
+  row_values *row = NULL;
+  cur.execute(query);
+  cur.get_columns();
+  do {
+    row = cur.get_next_row();
+    if (row != NULL) {
+      cuvolume2 = atol(row->values[0]);
+    }
+  } while (row != NULL);
   cur.close();
   return sqlvolume;
 }
@@ -72,7 +80,9 @@ void writelcd(String line1, String line2){
 }
 void updatelcd()
 {
-  writelcd("1: "+String((int)sensor1.getCurrentFlowrate())+"L/h "+String(sensor1.getTotalVolume())+"L","2:"+String((int)sensor2.getCurrentFlowrate())+"L/h "+String(sensor2.getTotalVolume())+"L");
+   volume1=cuvolume1+sensor1.getTotalVolume();
+  volume2=cuvolume2+sensor2.getTotalVolume();
+  writelcd("1: "+String((int)sensor1.getCurrentFlowrate())+"L/h "+String(volume1)+"L","2:"+String((int)sensor2.getCurrentFlowrate())+"L/h "+String(volume2)+"L");
 }
 void ICACHE_RAM_ATTR read1() {
   sensor1.count();
@@ -130,7 +140,7 @@ void setup() {
   delay(1000);
   writelcd("Boot Sequence P3","    Success!");
   delay(2000);
-  writelcd("Waterish OS a3.9","Reading  Sensors");
+  writelcd("Waterish OS s6.4","Reading  Sensors");
   delay(1000);
   writelcd(" Telemetry Node","siwatsystem.com");
   if (conn.connect(server_addr, 3306, mysqluser, mysqlpassword)) {
@@ -142,7 +152,7 @@ void setup() {
     delay(3000);
   }
   //MySQL Persist Object Retrival
-  
+  cuvolume=retrieveVOL();
   datacollector.onRun(collectdata);
   datacollector.setInterval(1000);
   if(online)mqttupdater.onRun(updatemqtt);
