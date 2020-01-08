@@ -50,6 +50,7 @@ float volume1=0;
 float volume2=0;
 float cuvolume1=0;
 float cuvolume2=0;
+String apitoken=null;
 volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
@@ -115,7 +116,11 @@ void setup() {
   } else {
     Serial.println("failed to mount FS");
   }
+  WiFiManagerParameter token("token", "token", token, 40);
   WiFiManager wifiManager;
+  wifiManager.setSaveConfigCallback(saveConfigCallback);
+  wifiManager.addParameter(&token);
+  strcpy(apitoken, token.getValue());
   int connectionattempt = 0;
   online=true;
   wifiManager.setAPCallback(enterconfig);
@@ -138,19 +143,22 @@ void setup() {
     mcp.pullUp(i, LOW);
     mcp.setupInterruptPin(i, RISING);
   }
+    if (shouldSaveConfig) {
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject& json = jsonBuffer.createObject();
+    json["token"] = token;
+    File configFile = SPIFFS.open("/config.json", "w");
+    if (!configFile) {
+      Serial.println("failed to open config file for writing");
+    }
+    json.printTo(Serial);
+    json.printTo(configFile);
+    configFile.close();
+  }
   writelcd("Boot Sequence P3","    Success!");
   delay(500);
   writelcd("Waterish OS s6.4","Reading  Sensors");
   delay(1000);
-  writelcd(" Telemetry Node","siwatsystem.com");
-  if (true) {
-    writelcd(" Telemetry Node","Connected");
-    delay(1000);
-  } else {
-    writelcd(" Telemetry Node"," Failed Offline");
-    online=false;
-    delay(3000);
-  }
   //MySQL Persist Object Retrival
   retrieveVOL();
   datacollector.onRun(collectdata);
