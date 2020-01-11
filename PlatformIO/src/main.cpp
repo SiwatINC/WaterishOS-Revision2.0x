@@ -23,7 +23,7 @@
 #include <Adafruit_MCP23017.h>
 #include <Thread.h>
 #include <ThreadController.h>
-#include <HttpClient.h>
+#include <ArduinoHttpClient.h>
 #include <WiFiManager.h>
 #define ARDUINOJSON_ENABLE_ARDUINO_STRING 1
 #include <ArduinoJson.h>
@@ -32,7 +32,7 @@
 #include <ESP8266WebServer.h>
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 char apitoken[50];
-const char backend[] = "siwatinc.com";
+const char backend[] = "siwatsystem.com";
 const int kNetworkTimeout = 30 * 1000;
 Adafruit_MCP23017 mcp;
 long tslr = 0;
@@ -54,10 +54,18 @@ float cuvolume2 = 0;
 volatile boolean awakenByInterrupt = false;
 LiquidCrystal_I2C lcd(0x3F, 16, 2);
 int menu;
-HttpClient http(espClient);
+HttpClient http(espClient,backend,80);
 bool shouldSaveConfig = false;
 void retrieveVOL()
 {
+
+  char updatepath[100];
+  strcpy(updatepath,"/api/flowos.php?pram=retrieveSensor&token=");
+  strcat(updatepath,apitoken);
+  http.get(updatepath);
+  cuvolume1=http.responseBody().toFloat();
+  Serial.println(cuvolume1);
+  
 }
 void saveConfigCallback()
 {
@@ -73,8 +81,6 @@ void writelcd(String line1, String line2)
 }
 void updatelcd()
 {
-  volume1 = cuvolume1 + sensor1.getTotalVolume();
-  volume2 = cuvolume2 + sensor2.getTotalVolume();
   writelcd("1: " + String((int)sensor1.getCurrentFlowrate()) + "L/h " + String(volume1) + "L", "2:" + String((int)sensor2.getCurrentFlowrate()) + "L/h " + String(volume2) + "L");
 }
 void ICACHE_RAM_ATTR read1()
@@ -92,7 +98,10 @@ void collectdata()
 }
 void updatemqtt()
 {
+  volume1 = cuvolume1 + sensor1.getTotalVolume();
+  volume2 = cuvolume2 + sensor2.getTotalVolume();
   //UPDATE USING MySQL
+  http.stop();
   char updatepath[100];
   char buffer[100];
   strcpy(updatepath,"/api/flowos.php?pram=sendSensor&token=");
@@ -101,8 +110,10 @@ void updatemqtt()
   strcat(updatepath,itoa((int)sensor1.getCurrentFlowrate(),buffer,10));
   strcat(updatepath,"&volume=");
   strcat(updatepath,itoa((int)volume1,buffer,10));
-  Serial.println(updatepath);
-  http.get(backend,updatepath);
+  http.get(updatepath);
+  
+  //Serial.println(updatepath);
+  //Serial.println(http.readString().c_str());
 }
 void setup()
 {
