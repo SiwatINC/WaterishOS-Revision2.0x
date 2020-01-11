@@ -93,28 +93,35 @@ void collectdata()
 void updatemqtt()
 {
   //UPDATE USING MySQL
+  char updatepath[100];
+  char buffer[100];
+  strcpy(updatepath,"/api/flowos.php?pram=sendSensor&token=");
+  strcat(updatepath,apitoken);
+  strcat(updatepath,"&flowrate=");
+  strcat(updatepath,itoa((int)sensor1.getCurrentFlowrate(),buffer,10));
+  strcat(updatepath,"&volume=");
+  strcat(updatepath,itoa((int)volume1,buffer,10));
+  Serial.println(updatepath);
+  http.get(backend,updatepath);
 }
-struct {
-  char eetoken[50];
-} data;
-
 void setup()
 {
+  Serial.begin(9600);
   lcd.init();
   EEPROM.begin(1024);
   writelcd(" Siwat INC (tm) ", "  Waterish OS");
   delay(1000);
-  EEPROM.get(0,data);
-  strcpy(data.eetoken,apitoken);
+  EEPROM.get(0,apitoken);
+  Serial.print(apitoken);
   WiFiManagerParameter token("token", "token", apitoken, 40);
   WiFiManager wifiManager;
+  wifiManager.setSaveConfigCallback(saveConfigCallback);
   wifiManager.addParameter(&token);
   strcpy(apitoken, token.getValue());
   int connectionattempt = 0;
   online = true;
   wifiManager.autoConnect("FlowOSnode");
   writelcd("Boot Sequence P3", " Loading Kernel");
-  Serial.begin(115200);
   pinMode(14, INPUT_PULLUP);
   pinMode(12, INPUT);
   pinMode(13, INPUT);
@@ -131,8 +138,8 @@ void setup()
   }
   if (shouldSaveConfig)
   {
-    strcpy(apitoken,data.eetoken);
-    EEPROM.put(0,data);
+    strcpy(apitoken,token.getValue());
+    EEPROM.put(0,apitoken);
     EEPROM.commit();
   }
   writelcd("Boot Sequence P3", "    Success!");
