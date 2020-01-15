@@ -119,6 +119,7 @@ void setup()
 {
   Serial.begin(9600);
   lcd.init();
+  lcd.backlight();
   EEPROM.begin(1024);
   writelcd(" Siwat INC (tm) ", "  Waterish OS");
   delay(1000);
